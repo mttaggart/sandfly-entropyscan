@@ -110,12 +110,12 @@ func main() {
 
 	if procOnly {
 		if os.Geteuid() != 0 {
-			log.Fatalf("process checking option requires UID/EUID 0 (root) to run")
+			log.Printf("process checking option requires UID/EUID 0 (root) to run")
 		}
 		// This will do a PID bust of all PID range to help detect hidden PIDs.
 		pidPaths, err := genPIDExePaths()
 		if err != nil {
-			log.Fatalf("error generating PID list: %v\n", err)
+			log.Printf("error generating PID list: %v\n", err)
 		}
 		for pid := 0; pid < len(pidPaths); pid++ {
 			// Only check elf files which should be all these will be anyway.
@@ -133,7 +133,7 @@ func main() {
 	if filePath != "" {
 		fileInfo, err := checkFilePath(filePath, elfOnly, entropyMaxVal)
 		if err != nil {
-			log.Fatalf("error processing file (%s): %v\n", filePath, err)
+			log.Printf("error processing file (%s): %v\n", filePath, err)
 		}
 
 		if fileInfo.entropy >= entropyMaxVal {
@@ -146,7 +146,7 @@ func main() {
 	if dirPath != "" {
 		var search = func(filePath string, info os.FileInfo, err error) error {
 			if err != nil {
-				log.Fatalf("error walking directory (%s) inside search function: %v\n", filePath, err)
+				log.Printf("error walking directory (%s) inside search function: %v\n", filePath, err)
 			}
 			// If info comes back as nil we don't want to read it or we panic.
 			if info != nil {
@@ -156,7 +156,7 @@ func main() {
 					if info.Mode().IsRegular() {
 						fileInfo, err := checkFilePath(filePath, elfOnly, entropyMaxVal)
 						if err != nil {
-							log.Fatalf("error processing file (%s): %v\n", filePath, err)
+							log.Printf("error processing file (%s): %v\n", filePath, err)
 						}
 
 						if fileInfo.entropy >= entropyMaxVal {
@@ -169,7 +169,7 @@ func main() {
 		}
 		err := filepath.Walk(dirPath, search)
 		if err != nil {
-			log.Fatalf("error walking directory (%s): %v\n", dirPath, err)
+			log.Printf("error walking directory (%s): %v\n", dirPath, err)
 		}
 		os.Exit(0)
 	}
@@ -224,7 +224,7 @@ func checkFilePath(filePath string, elfOnly bool, entropyMaxVal float64) (fileIn
 	if elfOnly && isElfType {
 		entropy, err := fileutils.Entropy(filePath)
 		if err != nil {
-			log.Fatalf("error calculating entropy for file (%s): %v\n", filePath, err)
+			log.Printf("error calculating entropy for file (%s): %v\n", filePath, err)
 		}
 		fileInfo.entropy = entropy
 	}
@@ -232,7 +232,7 @@ func checkFilePath(filePath string, elfOnly bool, entropyMaxVal float64) (fileIn
 	if !elfOnly {
 		entropy, err := fileutils.Entropy(filePath)
 		if err != nil {
-			log.Fatalf("error calculating entropy for file (%s): %v\n", filePath, err)
+			log.Printf("error calculating entropy for file (%s): %v\n", filePath, err)
 		}
 		fileInfo.entropy = entropy
 	}
@@ -240,19 +240,19 @@ func checkFilePath(filePath string, elfOnly bool, entropyMaxVal float64) (fileIn
 	if fileInfo.entropy >= entropyMaxVal {
 		md5, err := fileutils.HashMD5(filePath)
 		if err != nil {
-			log.Fatalf("error calculating MD5 hash for file (%s): %v\n", filePath, err)
+			log.Printf("error calculating MD5 hash for file (%s): %v\n", filePath, err)
 		}
 		sha1, err := fileutils.HashSHA1(filePath)
 		if err != nil {
-			log.Fatalf("error calculating SHA1 hash for file (%s): %v\n", filePath, err)
+			log.Printf("error calculating SHA1 hash for file (%s): %v\n", filePath, err)
 		}
 		sha256, err := fileutils.HashSHA256(filePath)
 		if err != nil {
-			log.Fatalf("error calculating SHA256 hash for file (%s): %v\n", filePath, err)
+			log.Printf("error calculating SHA256 hash for file (%s): %v\n", filePath, err)
 		}
 		sha512, err := fileutils.HashSHA512(filePath)
 		if err != nil {
-			log.Fatalf("error calculating SHA512 hash for file (%s): %v\n", filePath, err)
+			log.Printf("error calculating SHA512 hash for file (%s): %v\n", filePath, err)
 		}
 		fileInfo.hash.md5 = md5
 		fileInfo.hash.sha1 = sha1
